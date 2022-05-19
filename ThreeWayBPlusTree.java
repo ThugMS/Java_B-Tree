@@ -11,27 +11,27 @@ import java.util.SortedSet;
 @SuppressWarnings("unused")
 public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 
-	// Data Abstractionì€ ì˜ˆì‹œì¼ ë¿ ììœ ë¡­ê²Œ B+ Treeì˜ ë²”ì£¼ ì•ˆì—ì„œ ì–´ëŠì •ë„ ìˆ˜ì •ê°€ëŠ¥
+	// Data AbstractionÀº ¿¹½ÃÀÏ »Ó ÀÚÀ¯·Ó°Ô B+ TreeÀÇ ¹üÁÖ ¾È¿¡¼­ ¾î´ÀÁ¤µµ ¼öÁ¤°¡´É
 	private ThreeWayBPlusTreeNode root;
 	private LinkedList<ThreeWayBPlusTreeNode> leafList;
 
 	/**
-	 * ê³¼ì œ Assignment4ë¥¼ ìœ„í•œ ë©”ì†Œë“œ:
+	 * °úÁ¦ Assignment4¸¦ À§ÇÑ ¸Ş¼Òµå:
 	 * 
-	 * keyë¡œ ê²€ìƒ‰í•˜ë©´ rootë¶€í„° ì‹œì‘í•˜ì—¬, keyë¥¼ í¬í•¨í•  ìˆ˜ ìˆëŠ” leaf nodeë¥¼ ì°¾ê³  keyê°€ ì‹¤ì œë¡œ ì¡´ì¬í•˜ë©´ í•´ë‹¹ Nodeë¥¼
-	 * ë°˜í™˜í•˜ê³ , ê·¸ë ‡ì§€ ì•Šë‹¤ë©´ nullì„ ë°˜í™˜í•œë‹¤. ì¤‘ê°„ê³¼ì •ì„ System.out.println(String) ìœ¼ë¡œ ì¶œë ¥í•´ì•¼ í•¨. 3 way
-	 * B+ treeì—ì„œ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 ì´ ìˆœì„œëŒ€ë¡œ
-	 * addë˜ì—ˆë‹¤ê³  í–ˆì„ ë•Œ,
+	 * key·Î °Ë»öÇÏ¸é rootºÎÅÍ ½ÃÀÛÇÏ¿©, key¸¦ Æ÷ÇÔÇÒ ¼ö ÀÖ´Â leaf node¸¦ Ã£°í key°¡ ½ÇÁ¦·Î Á¸ÀçÇÏ¸é ÇØ´ç Node¸¦
+	 * ¹İÈ¯ÇÏ°í, ±×·¸Áö ¾Ê´Ù¸é nullÀ» ¹İÈ¯ÇÑ´Ù. Áß°£°úÁ¤À» System.out.println(String) À¸·Î Ãâ·ÂÇØ¾ß ÇÔ. 3 way
+	 * B+ tree¿¡¼­ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 ÀÌ ¼ø¼­´ë·Î
+	 * addµÇ¾ú´Ù°í ÇßÀ» ¶§,
 	 * 
-	 * ì˜ˆ: getNode(15)ì„ ìˆ˜í–‰í•˜ì˜€ì„ ë•Œ 
+	 * ¿¹: getNode(15)À» ¼öÇàÇÏ¿´À» ¶§ 
 	 * > start finding 15
 	 * > larger than or equal to 9
 	 * > larger than or equal to 13
 	 * > larger than or equal to 15
 	 * > less than 16
 	 * > 15 found 
-	 * ìœ„ì˜ 6 ë¬¸ì¥ì„
-	 * ì½˜ì†”ì— ì¶œë ¥í•˜ê³  15ë¥¼ í¬í•¨í•œ ThreeWayBPlusTreeNodeë¥¼ ë°˜í™˜í•¨
+	 * À§ÀÇ 6 ¹®ÀåÀ»
+	 * ÄÜ¼Ö¿¡ Ãâ·ÂÇÏ°í 15¸¦ Æ÷ÇÔÇÑ ThreeWayBPlusTreeNode¸¦ ¹İÈ¯ÇÔ
 	 * 
 	 * @param key
 	 * @return
@@ -49,11 +49,11 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 	}
 	
 	/**
-	 * ê³¼ì œ Assignment4ë¥¼ ìœ„í•œ ë©”ì†Œë“œ: 
+	 * °úÁ¦ Assignment4¸¦ À§ÇÑ ¸Ş¼Òµå: 
 	 * 
-	 * inorder traversalì„ ìˆ˜í–‰í•˜ì—¬, ê°’ì„ ì˜¤ë¦„ì°¨ìˆœìœ¼ë¡œ ì¶œë ¥í•œë‹¤. 
-	 * 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 ì´ ìˆœì„œëŒ€ë¡œ
-	 * addë˜ì—ˆë‹¤ê³  í–ˆì„ ë•Œ,
+	 * inorder traversalÀ» ¼öÇàÇÏ¿©, °ªÀ» ¿À¸§Â÷¼øÀ¸·Î Ãâ·ÂÇÑ´Ù. 
+	 * 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 ÀÌ ¼ø¼­´ë·Î
+	 * addµÇ¾ú´Ù°í ÇßÀ» ¶§,
 	 * 1
 	 * 2
 	 * 3
@@ -71,8 +71,8 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 	 * 15
 	 * 16
 	 * 17
-	 * ìœ„ì™€ ê°™ì´ ì¶œë ¥ë˜ì–´ì•¼ í•¨. 
-	 * Note: Bottomì˜ LinkedList ìˆœíšŒë¥¼ í•˜ë©´ ì•ˆë¨
+	 * À§¿Í °°ÀÌ Ãâ·ÂµÇ¾î¾ß ÇÔ. 
+	 * Note: BottomÀÇ LinkedList ¼øÈ¸¸¦ ÇÏ¸é ¾ÈµÊ
 	 */
 	public void inorderTraverse() {
 		// TODO Auto-generated method stub
@@ -125,13 +125,57 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+	public void add_switching(ThreeWayBPlusTreeNode sub) {
+		if(sub.getParent() == null) {//ºÎ¸ğ°¡ ¾øÀ»½Ã
+			//ºÎ¸ğ»ı¼º
+			ThreeWayBPlusTreeNode parent = new ThreeWayBPlusTreeNode();
+			sub.setParent(parent);
+			
+			ThreeWayBPlusTreeNode left = new ThreeWayBPlusTreeNode();
+			ThreeWayBPlusTreeNode right = new ThreeWayBPlusTreeNode();
+			
+			left.setParent(parent); //ÀÚ½Äµé ºÎ¸ğ¼³Á¤
+			right.setParent(parent);
+			
+			left.setKeyList(sub.getKeyList().poll()); //key°ªµé ÇÒ´çÇÏ±â
+			parent.setKeyList(sub.getKeyList().peek());
+			right.setKeyList(sub.getKeyList().poll());
+			right.setKeyList(sub.getKeyList().poll());
+			
+			//ÀÚ½Ä¼³Á¤
+			parent.setChildren(left, right);
+			
+			root = parent;
+		}
+		else {
+			
+			
+		}
+	}
 	@Override
 	public boolean add(Integer e) {
-//		if(root.getKeyList().isEmpty()) {
-//			root.getKeyList().add(e);	
-//		}
-		root.getKeyList().add(e);	
+		ThreeWayBPlusTreeNode sub = root;
+		if(sub.getKeyList().isEmpty()) {
+			sub.getKeyList().add(e);
+		}
+		else {
+			while(!sub.getChildren().isEmpty()) {
+				List<ThreeWayBPlusTreeNode> child = sub.getChildren();
+				int a = child.get(1).getKeyList().peek();
+				
+				if(e >= a) {
+					sub = child.get(1);
+				}
+				else {
+					sub = child.get(0);
+				}
+			}
+			sub.setKeyList(e);
+			if(sub.getKeyList().size()>=3) {
+				add_switching(sub);
+			}
+		}
+		
 		System.out.println(root.getKeyList());
 		
 		return false;

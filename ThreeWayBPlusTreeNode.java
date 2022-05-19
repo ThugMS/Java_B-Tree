@@ -1,18 +1,20 @@
 package org.dfpl.lecture.database.assignment2.assignment18011675;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 
 @SuppressWarnings("unused")
 public class ThreeWayBPlusTreeNode {
 
-	// Data Abstractionì€ ì˜ˆì‹œì¼ ë¿ ììœ ë¡­ê²Œ B+ Treeì˜ ë²”ì£¼ ì•ˆì—ì„œ ì–´ëŠì •ë„ ìˆ˜ì •ê°€ëŠ¥
+	// Data AbstractionÀº ¿¹½ÃÀÏ »Ó ÀÚÀ¯·Ó°Ô B+ TreeÀÇ ¹üÁÖ ¾È¿¡¼­ ¾î´ÀÁ¤µµ ¼öÁ¤°¡´É
 	private ThreeWayBPlusTreeNode parent;
 	private PriorityQueue<Integer> keyList;
 	private List<ThreeWayBPlusTreeNode> children;
 	
 	ThreeWayBPlusTreeNode(){
 		keyList = new PriorityQueue<>();
+		children = new ArrayList<>();
 	}
 	
 	ThreeWayBPlusTreeNode getParent() {
@@ -31,11 +33,12 @@ public class ThreeWayBPlusTreeNode {
 		this.parent = parent;
 	}
 
-	void setKeyList(PriorityQueue<Integer> keyList) {
-		this.keyList = keyList;
+	void setKeyList(int e) {
+		this.keyList.add(e);
 	}
 	
-	void setChildren(List<ThreeWayBPlusTreeNode> children) {
-		this.children = children;
+	void setChildren(ThreeWayBPlusTreeNode left, ThreeWayBPlusTreeNode right) {
+		this.children.add(left);
+		this.children.add(right);
 	}
 }

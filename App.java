@@ -67,4 +67,3 @@ public class App {
 		System.out.println("remove test: " + isPass);
 	}
 }
-
