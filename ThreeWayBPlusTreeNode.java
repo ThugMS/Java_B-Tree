@@ -11,6 +11,7 @@ public class ThreeWayBPlusTreeNode {
 	private ThreeWayBPlusTreeNode parent;
 	private ArrayList<Integer> keyList;
 	private List<ThreeWayBPlusTreeNode> children;
+	public Object getKeyList;
 	
 	ThreeWayBPlusTreeNode(){
 		keyList = new ArrayList<Integer>();

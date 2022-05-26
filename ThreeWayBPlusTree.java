@@ -14,7 +14,7 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 	// Data Abstraction은 예시일 뿐 자유롭게 B+ Tree의 범주 안에서 어느정도 수정가능
 	private ThreeWayBPlusTreeNode root;
 	private LinkedList<ThreeWayBPlusTreeNode> leafList;
-
+	
 	/**
 	 * 과제 Assignment4를 위한 메소드:
 	 * 
@@ -41,6 +41,10 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 		root = new ThreeWayBPlusTreeNode();
 		leafList = new LinkedList();
 		return;
+	}
+	
+	public LinkedList<ThreeWayBPlusTreeNode> get_LeafList(){
+		return this.leafList;
 	}
 	
 	public void show(ThreeWayBPlusTreeNode sub, int cnt) {
@@ -177,14 +181,25 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 
 	@Override
 	public Integer first() {
-		// TODO Auto-generated method stub
-		return null;
+//		ThreeWayBPlusTreeNode sub = root;
+//		while(!sub.getChildren().isEmpty()) {
+//			sub = sub.getChildren().get(0);
+//		}
+//		
+//		return sub.getKeyList().get(0);
+		return leafList.getFirst().getKeyList().get(0);
 	}
 
 	@Override
 	public Integer last() {
-		// TODO Auto-generated method stub
-		return null;
+//		ThreeWayBPlusTreeNode sub = root;
+//		while(!sub.getChildren().isEmpty()) {
+//			sub = sub.getChildren().get(sub.getChildren().size()-1);
+//		}
+//		
+//		return sub.getKeyList().get(sub.getKeyList().size()-1);
+		
+		return leafList.getLast().getKeyList().get(leafList.getLast().getKeyList().size()-1);
 	}
 
 	@Override
@@ -244,6 +259,42 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 		
 		return sub;
 	}
+	
+	public boolean checking(int a) {
+		ThreeWayBPlusTreeNode sub = root;
+		
+		while(!sub.getChildren().isEmpty()) {
+			List<ThreeWayBPlusTreeNode> child = sub.getChildren();
+			if(sub.getKeyList().size() == 2) { //자식이 3개일때
+				if(a>=sub.getKeyList().get(1)) {
+					sub = child.get(2); //가장오른쪽 가기
+				}
+				else if(a>=sub.getKeyList().get(0)) {
+					sub = child.get(1); //가운데 자식으로 가기
+				}
+				else {
+					sub = child.get(0); //가장 왼쪽 자식
+				}
+			}
+			else{
+				if(a>=sub.getKeyList().get(0)) { //자식이 2개일때
+					sub = child.get(1); //오른쪽 자식
+				}
+				else {
+					sub = child.get(0); //왼쪽 자식
+				}
+			}
+		}
+		boolean check = true;
+		
+		for(int i=0;i<sub.getKeyList().size();i++) {
+			if(a == sub.getKeyList().get(i))
+				check = false;
+		}
+		
+		return check;
+		
+	}
 	public void parent_switching(ThreeWayBPlusTreeNode sub) {
 		if(sub.getParent() == null) {
 			ThreeWayBPlusTreeNode parent = new ThreeWayBPlusTreeNode();
@@ -256,7 +307,11 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 			
 			left.setKeyList(sub.getKeyList().get(0)); //key값들 할당하기
 			parent.setKeyList(sub.getKeyList().get(1));
+			parent.getKeyList().sort(Comparator.naturalOrder());
+			
 			right.setKeyList(sub.getKeyList().get(2));
+			
+			sub.getChildren().sort(new childrenComparator());
 			
 			left.setChildren(sub.getChildren().get(0), sub.getChildren().get(1));
 			sub.getChildren().get(0).setParent(left);
@@ -266,6 +321,7 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 			sub.getChildren().get(3).setParent(right);
 			
 			parent.setChildren(left, right);
+			parent.getChildren().sort(new childrenComparator());
 			
 			root = parent;
 		}
@@ -280,7 +336,11 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 			
 			left.setKeyList(sub.getKeyList().get(0)); //key값들 할당하기
 			parent.setKeyList(sub.getKeyList().get(1));
+			parent.getKeyList().sort(Comparator.naturalOrder());
+			
 			right.setKeyList(sub.getKeyList().get(2));
+			
+			sub.getChildren().sort(new childrenComparator());
 			
 			left.setChildren(sub.getChildren().get(0), sub.getChildren().get(1));
 			sub.getChildren().get(0).setParent(left);
@@ -329,16 +389,26 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 			ThreeWayBPlusTreeNode left = new ThreeWayBPlusTreeNode(); //자식들 생성
 			ThreeWayBPlusTreeNode right = new ThreeWayBPlusTreeNode();
 			
+			int index = leafList.indexOf(sub);
+			leafList.remove(index);
+			
 			left.setParent(parent); //자식들 부모설정
 			right.setParent(parent);
 			
 			left.setKeyList(sub.getKeyList().get(0)); //key값들 할당하기
 			parent.setKeyList(sub.getKeyList().get(1));
+			parent.getKeyList().sort(Comparator.naturalOrder());
+			
 			right.setKeyList(sub.getKeyList().get(1));
 			right.setKeyList(sub.getKeyList().get(2));
 			
 			//자식설정
 			parent.setChildren(left, right);
+			
+			parent.getChildren().sort(new childrenComparator());
+			
+			leafList.add(index, left);
+			leafList.add(index + 1, right);
 			
 			root = parent;
 		}
@@ -347,6 +417,9 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 			
 			ThreeWayBPlusTreeNode left = new ThreeWayBPlusTreeNode(); //자식들 생성
 			ThreeWayBPlusTreeNode right = new ThreeWayBPlusTreeNode();
+			
+			int index = leafList.indexOf(sub);
+			leafList.remove(index);
 			
 			left.setParent(parent); //자식들 부모설정
 			right.setParent(parent);
@@ -369,6 +442,10 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 			
 			parent.setChildren(left, right);
 			
+			parent.getChildren().sort(new childrenComparator());
+			
+			leafList.add(index, left);
+			leafList.add(index + 1, right);
 			
 			if(parent.getKeyList().size()>=3) {
 				parent_switching(parent);
@@ -381,10 +458,14 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 	}
 	@Override
 	public boolean add(Integer e) {
+		if(!checking(e))
+			return false;
+		
 		ThreeWayBPlusTreeNode sub = root;
 		
 		if(sub.getKeyList().isEmpty()) {
 			sub.getKeyList().add(e);
+			leafList.add(sub);
 		}
 		else {
 			sub = search(e);
@@ -473,11 +554,25 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
+	public LinkedList<Integer> makeIntList(){
+		LinkedList<Integer> intList = new LinkedList<Integer>();
+		
+		for(ThreeWayBPlusTreeNode i : leafList) {
+			for(int j=0;j<i.getKeyList().size();j++) {
+				intList.add(i.getKeyList().get(j));
+			}
+		}
+		
+		return intList;
+	}
+	
 	@Override
 	public Iterator<Integer> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		LinkedList<Integer> intList = makeIntList();
+		
+		
+		return intList.iterator();
 	}
 
 	@Override
