@@ -43,4 +43,20 @@ public class ThreeWayBPlusTreeNode {
 		this.children.add(left);
 		this.children.add(right);
 	}
+	
+	public int addKeyList(int e) {
+		for (int i = 0; i < keyList.size(); i++) {
+			//이미 트리에 있을경우
+			if (e == keyList.get(i)) {
+				return -1;
+			}
+			if (e < keyList.get(i)) {
+				keyList.add(i, e);
+				return i;
+			}
+		}
+		int index = keyList.size();
+		keyList.add(index, e);
+		return index;
+	}
 }

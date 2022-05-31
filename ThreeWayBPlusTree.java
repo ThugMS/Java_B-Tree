@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.NavigableSet;
 import java.util.SortedSet;
 
+
+
 @SuppressWarnings("unused")
 public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 
@@ -482,12 +484,245 @@ public class ThreeWayBPlusTree implements NavigableSet<Integer> {
 		
 		return false;
 	}
-
+	public  ThreeWayBPlusTreeNode updateNode(ThreeWayBPlusTreeNode sub, int remove, int update) {
+		sub = sub.getParent();
+		
+		while(sub!=null) {
+			for(int i=0;i<sub.getKeyList().size();i++) {
+				if(sub.getKeyList().get(i) == remove) {
+					sub.getKeyList().remove(i);
+					
+					if(update != -1) {
+						sub.getKeyList().add(i, update);
+					}
+					return sub;
+				}
+			}
+			sub = sub.getParent();
+		}
+		return null;
+	}
 	@Override
 	public boolean remove(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		int e = (int)o;
+		
+		ThreeWayBPlusTreeNode sub = search(e);
+		int index = -1;
+		for(int i=0;i<sub.getKeyList().size();i++) {
+			if(e == sub.getKeyList().get(i))
+				index = i;
+		}
+		if(index  == -1)
+			return false;
+		//우선 키 값들 삭제
+		sub.getKeyList().remove(index);
+		
+		//하나밖에 없을 때 삭제할때 모든것을 초기 세팅으로 돌려줌
+		if(sub.getParent() == null) {
+			if(sub.getKeyList().size() == 0) {
+				root = null;
+				leafList.remove(sub);
+			}
+			return true;
+		}
+		
+		ThreeWayBPlusTreeNode update = new ThreeWayBPlusTreeNode();
+		
+		//가장 왼쪽에 있는 노드가 아니면서 노드에서 가장 처음의 값이라면 무조건 상위노드에 자신과 똑같은 값이 있으므로 없데이트작업이 필요 
+		if(index == 0 && leafList.indexOf(sub) != 0) {
+			//안비어있다면 바꿔주고 끝
+			if(sub.getKeyList().size() != 0) {
+				updateNode(sub, e, sub.getKeyList().get(index));
+				return true;
+			} //남은게 없다면 다른 작업이 필요
+			else if(sub.getKeyList().size() == 0) {
+				update = updateNode(sub, e, -1);
+			}
+		}
+		
+		
+		//최소키 조건 만족하므로 끝
+		if(sub.getKeyList().size() != 0) {
+			return true;
+		}
+		//부모 없을때 끝
+		if(sub.getParent() == null) {
+			root = null;
+			leafList.remove(sub);
+			return true;
+		}
+		
+		//빌려오거나 병합을 위한 사전 작업
+		
+		//지워진 노드가 부모의 몇번째 자식인지 체크
+		int subIndex = sub.getParent().getChildren().indexOf(sub);
+		
+		ThreeWayBPlusTreeNode left = null;
+		//왼쪽에 자식이 있는경우
+		if(subIndex -1 >= 0) {
+			left = sub.getParent().getChildren().get(subIndex-1);
+		}
+		
+		ThreeWayBPlusTreeNode right = null;
+		//오른쪽에 자식이 있는경우
+		if(subIndex + 1 < sub.getParent().getChildren().size()) {
+			right = sub.getParent().getChildren().get(subIndex+1);
+		}
+		//왼쪽이 있으면서 왼쪽에서 빌릴 수 있을때
+		if(left != null && left.getKeyList().size() >= 2) {
+			//왼쪽에서 가장 우측에 있는 값을 가져오는 과정
+			int LV = left.getKeyList().remove(left.getKeyList().size() - 1);
+			//값을 넣어주고 정렬
+//			sub.getKeyList().add(LV);
+//			sub.getKeyList().sort(Comparator.naturalOrder());
+			sub.addKeyList(LV);
+//			sub.getParent().getKeyList().add(LV);
+//			sub.getParent().getKeyList().sort(Comparator.naturalOrder());
+			sub.getParent().addKeyList(LV);
+		}
+		else if(right != null && right.getKeyList().size() >= 2) {
+			int PRV = sub.getParent().getChildren().indexOf(right)-1;
+			int RV = right.getKeyList().remove(0);
+			
+//			sub.getKeyList().add(RV);
+//			sub.getKeyList().sort(Comparator.naturalOrder());
+			sub.addKeyList(RV);
+			if(sub.getKeyList().get(0) == RV && update != null) {
+//				update.getKeyList().add(RV);
+//				update.getKeyList().sort(Comparator.naturalOrder());
+				update.addKeyList(RV);
+			}
+			
+			if(PRV == 0) {
+				sub.getParent().getKeyList().remove(0);
+			}
+//			sub.getParent().getKeyList().add(right.getKeyList().get(0));
+//			sub.getParent().getKeyList().sort(Comparator.naturalOrder());
+			sub.getParent().addKeyList(right.getKeyList().get(0));
+		}
+		//빌려올 수가 없다면 병합을 해야됨
+		else {
+			if(left != null);
+			else if(right != null) {
+				int indexPRV = sub.getParent().getChildren().indexOf(right)-1;
+				int PRV = sub.getParent().getKeyList().remove(indexPRV);
+				if(update != null) {
+//					update.getKeyList().add(PRV);
+//					update.getKeyList().sort(Comparator.naturalOrder());
+					update.addKeyList(PRV);
+				}
+//				right.getKeyList().add(PRV);
+//				right.getKeyList().sort(Comparator.naturalOrder());
+				right.addKeyList(PRV);
+			}
+			leafList.remove(leafList.indexOf(sub));
+			ThreeWayBPlusTreeNode parent = sub.getParent();
+			sub.getParent().getChildren().remove(sub);
+			sub.setParent(null);
+			merge(parent);
+		}
+		return true;
 	}
+	
+	public void merge(ThreeWayBPlusTreeNode sub) {
+		if(sub.getKeyList().size() != 0) {
+			return;
+		}
+		//부모거 없는 경우
+		ThreeWayBPlusTreeNode parent = sub.getParent();
+		if(parent == null) {
+			if(sub.getKeyList().size() == 0) {
+				root = sub.getChildren().get(0);
+			}
+			else {
+				root = sub;
+			}
+			root.setParent(null);
+			return;
+		}
+		
+		int subIndex = parent.getChildren().indexOf(sub);
+
+		ThreeWayBPlusTreeNode left = null;
+		//왼쪽에 자식이 있는경우
+		if(subIndex -1 >= 0) {
+			left = sub.getParent().getChildren().get(subIndex-1);
+		}
+		
+		ThreeWayBPlusTreeNode right = null;
+		//오른쪽에 자식이 있는경우
+		if(subIndex + 1 < sub.getParent().getChildren().size()) {
+			right = sub.getParent().getChildren().get(subIndex+1);
+		}
+		
+		if(left != null && left.getKeyList().size() >= 2) {
+			int LV = left.getKeyList().remove(left.getKeyList().size()-1);
+			int indexPLV = parent.getChildren().indexOf(left);
+			int PLV = parent.getKeyList().get(indexPLV);
+			
+//			sub.getKeyList().add(PLV);
+//			sub.getKeyList().sort(Comparator.naturalOrder());
+			sub.addKeyList(PLV);
+			
+			sub.getChildren().add(0,left.getChildren().remove(left.getChildren().size()-1));
+			sub.getChildren().get(0).setParent(sub);
+			
+			sub.addKeyList(parent.getKeyList().remove(indexPLV));
+
+			
+			parent.addKeyList(LV);
+//			parent.getKeyList().add(LV);
+//			parent.getKeyList().sort(Comparator.naturalOrder());
+		}
+		
+		else if(right != null && right.getKeyList().size() >= 2) {
+			int RV = right.getKeyList().remove(0);
+			int indexPRV = parent.getChildren().indexOf(right) - 1;
+			int PRV = parent.getKeyList().get(indexPRV);
+			
+			sub.addKeyList(PRV);
+//			sub.getKeyList().add(PRV);
+//			sub.getKeyList().sort(Comparator.naturalOrder());
+			
+			sub.getChildren().add(right.getChildren().remove(0));
+			sub.getChildren().get(sub.getChildren().size() - 1).setParent(sub);
+			
+			sub.addKeyList(parent.getKeyList().remove(indexPRV));
+
+			parent.addKeyList(RV);
+//			parent.getKeyList().add(RV);
+//			parent.getKeyList().sort(Comparator.naturalOrder());
+		}
+		else { //둘 다 안되는경우 다시 머지
+			if(left != null) {
+				int indexPLV = sub.getParent().getChildren().indexOf(left);
+				int PLV = sub.getParent().getKeyList().remove(indexPLV);
+				
+//				left.getKeyList().add(PLV);
+//				left.getKeyList().sort(Comparator.naturalOrder());
+				left.addKeyList(PLV);
+				
+				left.getChildren().add(sub.getChildren().get(0));
+				
+				sub.getChildren().get(0).setParent(left);
+			}
+			else if(right != null) {
+				int indexPRV = sub.getParent().getChildren().indexOf(right)-1;
+				int PRV = sub.getParent().getKeyList().remove(indexPRV);
+				
+//				right.getKeyList().add(PRV);
+//				right.getKeyList().sort(Comparator.naturalOrder());
+				right.addKeyList(PRV);
+				
+				right.getChildren().add(0, sub.getChildren().get(0));
+				
+				sub.getChildren().get(0).setParent(right);
+			}
+			parent.getChildren().remove(sub);
+			merge(parent);
+		}
+	}
+
 
 	@Override
 	public boolean containsAll(Collection<?> c) {
